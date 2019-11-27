@@ -1,5 +1,7 @@
+import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:mobiles2/data/database_helper.dart';
+import 'package:mobiles2/model/prepa_model.dart';
 
 class RegistroAsp extends StatefulWidget {
   @override
@@ -8,10 +10,17 @@ class RegistroAsp extends StatefulWidget {
 
 class _RegistroAspState extends State < RegistroAsp > {
   final _formKey = GlobalKey < FormState > ();
-  //final nameController = TextEditingController();
-  final emailController = TextEditingController();
-  final passwordController = TextEditingController();
-  final passwordControllerR = TextEditingController();
+  final nombreController = TextEditingController();
+  final apellidosController = TextEditingController();
+  final edadController = TextEditingController();
+  final sexoController = TextEditingController();
+  final correoController = TextEditingController();
+  final telController = TextEditingController();
+  final prepaController = TextEditingController();
+  final primeraOpcionController = TextEditingController();
+  final segundaOpcionController = TextEditingController();
+  final terceraOpcionController = TextEditingController();
+  final _autocompleteKey = GlobalKey<AutoCompleteTextFieldState<Prepa>>();
 
   @override
   Widget build(BuildContext context) {
@@ -21,137 +30,163 @@ class _RegistroAspState extends State < RegistroAsp > {
         backgroundColor: Colors.redAccent,
       ),
       body: SingleChildScrollView(
-        child: Form(
+        child: Padding(
+          padding: EdgeInsets.all(8),
+          child: Form(
         key: _formKey,
         child: Column(
           children: < Widget > [
 
             TextFormField(
-              //controller: emailController,
+              controller: nombreController,
               decoration: InputDecoration(labelText: 'Nombre'),
               keyboardType: TextInputType.emailAddress,
               validator: (input) {
                 if (input.isEmpty) {
-                  return 'Nombre';
+                  return 'El campo esta vacio';
                 }
 
                 return null;
               },
             ),
             TextFormField(
-              //controller: nameController,
+              controller: apellidosController,
               decoration: InputDecoration(labelText: 'Apellidos'),
               validator: (input) {
                 if (input.isEmpty) {
-                  return 'Apellidos';
+                  return 'El campo esta vacio';
                 }
 
                 return null;
               },
             ),
             TextFormField(
-              controller: passwordController,
+              controller: edadController,
               decoration: InputDecoration(labelText: 'Edad'),
-              obscureText: true,
               validator: (input) {
                 if (input.isEmpty) {
-                  return 'Edad';
+                  return 'El campo esta vacio';
                 }
 
                 return null;
               },
             ),
             TextFormField(
-              controller: passwordControllerR,
+              controller: sexoController,
               decoration: InputDecoration(labelText: 'Sexo'),
-              obscureText: true,
               validator: (input) {
                 if (input.isEmpty) {
-                  return 'Sexo';
+                  return 'El campo esta vacio';
                 }
 
                 return null;
               },
             ),
             TextFormField(
-              controller: passwordControllerR,
+              controller: correoController,
               decoration: InputDecoration(labelText: 'Correo'),
-              obscureText: true,
               validator: (input) {
                 if (input.isEmpty) {
-                  return 'Correo';
+                  return 'El campo esta vacio';
                 }
 
                 return null;
               },
             ),
             TextFormField(
-              controller: passwordControllerR,
+              controller: telController,
               decoration: InputDecoration(labelText: 'Número de teléfono'),
-              obscureText: true,
               validator: (input) {
                 if (input.isEmpty) {
-                  return 'Número de Teléfono';
+                  return 'El campo esta vacio';
                 }
 
                 return null;
               },
             ),
-            TextFormField(
-              controller: passwordControllerR,
-              decoration: InputDecoration(labelText: 'Preparatoria'),
-              obscureText: true,
-              validator: (input) {
-                if (input.isEmpty) {
-                  return 'Preparatoria';
-                }
+            AutoCompleteTextField<Prepa>(
+                key: _autocompleteKey,
+                controller: prepaController,
+                suggestions: prepas,
+                itemBuilder: (context, item){
+                  return ListTile(
+                    title: Text(item.nombre),
+                  );
+                },
+                itemFilter: (item, query){
+                  return item.nombre.toLowerCase().startsWith(query.toLowerCase());
+                },
+                itemSorter: (item, item2){
+                  return item.id.compareTo(item2.id);
+                },
+                itemSubmitted: (item){
+                  
+                },
+                decoration: InputDecoration(labelText: 'Preparatoria'),
+                clearOnSubmit: false,
 
-                return null;
-              },
-            ),
-            TextField(
-
-            ),
+              ),
             TextFormField(
-              controller: passwordControllerR,
+              controller: primeraOpcionController,
               decoration: InputDecoration(labelText: 'Primera opción'),
-              obscureText: true,
               validator: (input) {
                 if (input.isEmpty) {
-                  return 'Sexo';
+                  return 'El campo esta vacio';
+                }
+
+                return null;
+              },
+            ),
+            TextFormField(
+              controller: segundaOpcionController,
+              decoration: InputDecoration(labelText: 'Segunda opción'),
+              validator: (input) {
+                if (input.isEmpty) {
+                  return 'El campo esta vacio';
+                }
+
+                return null;
+              },
+            ),
+            TextFormField(
+              controller: terceraOpcionController,
+              decoration: InputDecoration(labelText: 'Tercera opción'),
+              validator: (input) {
+                if (input.isEmpty) {
+                  return 'El campo esta vacio';
                 }
 
                 return null;
               },
             ),
             RaisedButton(
-              child: Text('Entrar'),
+              child: Text('Agregar'),
               color: Colors.redAccent,
               textColor: Colors.white,
-              onPressed: () {
-                if (passwordController.text == passwordControllerR.text) {
-
-                  if (_formKey.currentState.validate()) {
-                    InfoVal dbHelper = InfoVal();
-                    dbHelper.guardarUsuario(
-                      //nameController.text,
-                      emailController.text,
-                      passwordController.text,
-                    );
-                    Navigator.pushReplacementNamed(context, '/login');
-                    Navigator.pop(context);
-                  }
-                } else {
-                  return 'Contraseña incorrecta';
+              onPressed: () async{
+                if(_formKey.currentState.validate()){
+                  final db = InfoVal();
+                  db.initDB();
+                  await db.guardarAspirante([
+                    nombreController.text,
+                    apellidosController.text,
+                    edadController.text,
+                    sexoController.text,
+                    correoController.text,
+                    telController.text,
+                    prepaController.text,
+                    primeraOpcionController.text,
+                    segundaOpcionController.text,
+                    terceraOpcionController.text
+                  ]);
+                  Navigator.pop(context);
                 }
-
-
-
               },
             ),
           ],
         ),
       ),
+        )
       )
     );
   }

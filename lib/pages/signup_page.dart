@@ -6,8 +6,8 @@ class SignUpPage extends StatefulWidget {
   _SignUpPageState createState() => _SignUpPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
-  final _formKey = GlobalKey<FormState>();
+class _SignUpPageState extends State < SignUpPage > {
+  final _formKey = GlobalKey < FormState > ();
   //final nameController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -23,8 +23,8 @@ class _SignUpPageState extends State<SignUpPage> {
       body: Form(
         key: _formKey,
         child: Column(
-          children: <Widget>[
-            
+          children: < Widget > [
+
             TextFormField(
               controller: emailController,
               decoration: InputDecoration(labelText: 'Usuario'),
@@ -33,6 +33,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 if (input.isEmpty) {
                   return 'Por favor escriba un usuario';
                 }
+
+                return null;
               },
             ),
             /*TextFormField(
@@ -52,6 +54,8 @@ class _SignUpPageState extends State<SignUpPage> {
                 if (input.isEmpty) {
                   return 'Escriba una contraseña';
                 }
+
+                return null;
               },
             ),
             TextFormField(
@@ -61,8 +65,10 @@ class _SignUpPageState extends State<SignUpPage> {
               validator: (input) {
                 if (input.isEmpty) {
                   return 'Escribe tu contraseña';
+                } else if (passwordController.text != input) {
+                  return 'Las contraseñas son diferentes';
                 }
-                
+                return null;
               },
             ),
             RaisedButton(
@@ -70,25 +76,16 @@ class _SignUpPageState extends State<SignUpPage> {
               color: Colors.redAccent,
               textColor: Colors.white,
               onPressed: () {
-if(passwordController.text == passwordControllerR.text){
-
                 if (_formKey.currentState.validate()) {
-                  InfoVal dbHelper = InfoVal();
-                  dbHelper.guardarUsuario(
-                    //nameController.text,
-                    emailController.text,
-                    passwordController.text,
-                  );
-                  Navigator.pushReplacementNamed(context, '/login');
-                  Navigator.pop(context);
-                }
-                }
-else{
-                return 'Contraseña incorrecta';
-                }
-
-
-
+                    InfoVal dbHelper = InfoVal();
+                    dbHelper.guardarUsuario(
+                      //nameController.text,
+                      emailController.text,
+                      passwordController.text,
+                    );
+                    Navigator.pushReplacementNamed(context, '/login');
+                    Navigator.pop(context);
+                  }
               },
             ),
           ],

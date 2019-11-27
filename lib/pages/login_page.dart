@@ -20,7 +20,9 @@ class _LoginPageState extends State<LoginPage> {
         title: Text('Inicio de Sesión'),
         backgroundColor: Colors.redAccent,
       ),
-      body: Form(
+      body: Padding(
+        padding: EdgeInsets.all(8),
+        child: Form(
         key: _formKey,
         child: Column(
           children: <Widget>[
@@ -55,11 +57,14 @@ class _LoginPageState extends State<LoginPage> {
               color: Colors.redAccent,
               textColor: Colors.white,
               onPressed: () {
+                emailController.text = "";
+                passwordController.text = "";
                 Navigator.pushNamed(context, '/signup');
               },
             ),
           ],
         ),
+      ),
       ),
     );
   }
@@ -71,7 +76,7 @@ class _LoginPageState extends State<LoginPage> {
           .obtenerUsuario(emailController.text, passwordController.text)
           .then((List<User> users) {
         if (users != null && users.length > 0) {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage(emailController: emailController.text, passwordController:passwordController.text)));
+          Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => HomePage(emailController: emailController.text, passwordController:passwordController.text)));
           print('[LoginPage] _validarUsuario: Success');
         } else {
           print('[LoginPage] _validarUsuario: Invalid credentials');

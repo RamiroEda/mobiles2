@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:mobiles2/model/user_model.dart';
 import 'package:mobiles2/data/database_helper.dart';
 import 'package:mobiles2/pages/agregar_aspirante.dart';
+import 'package:http/http.dart' as http;
 import 'package:mobiles2/pages/login_page.dart';
 
 
@@ -54,32 +57,20 @@ class _HomePageState extends State<HomePage> {
             ),
             RawMaterialButton(
               child: ListTile(
-                title: Text('Agregar aspirante'),
+                title: Text('Sincronizar'),
                 leading: Icon(
-                  Icons.favorite,
+                  Icons.refresh,
                   color: Colors.redAccent,
                 ),
               ),
               onPressed: (){
-                setState(() {
-                  _fragment = AgregarAspirante();
+                _registrarAspirantes().then((v){
+                    setState(() {
+                      _fragment = AgregarAspirante();
+                    });
+                    _scaffoldKey.currentState.openEndDrawer();
                 });
-                _scaffoldKey.currentState.openEndDrawer();
               },
-            ),
-            ListTile(
-              title: Text('Sincronizar'),
-              leading: Icon(
-                Icons.favorite,
-                color: Colors.redAccent,
-              ),
-            ),
-            ListTile(
-              title: Text('No sincronizados'),
-              leading: Icon(
-                Icons.favorite,
-                color: Colors.redAccent,
-              ),
             ),
             ListTile(
               title: Text(
@@ -88,7 +79,6 @@ class _HomePageState extends State<HomePage> {
               ),
               onTap: () {
                 Navigator.pushReplacementNamed(context, '/login');
-                Navigator.pop(context);
               },
             ),
           ],
@@ -99,5 +89,22 @@ class _HomePageState extends State<HomePage> {
         child: _fragment
       ),
     );
+  }
+
+
+  Future _registrarAspirantes() async{
+    final val = InfoVal();
+    final aspirantes = await val.obtenerAspirantes();
+
+    for(int i = 0 ; i< aspirantes.length ; i++){
+      final response = await http.get("http://sistemas.upiiz.ipn.mx/isc/sira/api/actionAddAspiranteApp.php?nombre=${aspirantes[i].nombre+" "+aspirantes[i].apellidos}&movil=${aspirantes[i].tel}&email=${aspirantes[i].correo}&accion=agregar");
+      final json = jsonDecode(response.body);
+      print(response.body);
+      if(json["estado"] == 1){
+        await val.borrrarAspirante(aspirantes[i].id);
+      }
+    }
+
+    return Future.value();
   }
 }
